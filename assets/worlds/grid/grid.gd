@@ -4,7 +4,7 @@ var rate:float = 6
 var s:float = -26
 var e:float = -14.1
 var gcol:Color
-var color:Color = Rhythia.selected_colorset.colors[0]
+var color:Color = NoteColorPresets.get_color(0)
 var ratec:float = 0.005
 var rng = RandomNumberGenerator.new()
 var particle = preload("res://assets/worlds/grid/cube.tscn")

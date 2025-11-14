@@ -4,7 +4,7 @@ var rate:float = Rhythia.get("approach_rate") / 6
 var s:float = -26
 var e:float = 48
 var tcol:Color
-var color:Color = Rhythia.selected_colorset.colors[0]
+var color:Color = NoteColorPresets.get_color(0)
 var ratec:float = 0.02
 
 func hit(col:Color):

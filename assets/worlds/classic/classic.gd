@@ -1,8 +1,8 @@
 extends Spatial
 
-var colors:Array = Rhythia.selected_colorset.colors
+var colors:Array = []
 
-var target_color:Color = colors[0] * 0.5
+var target_color:Color = Color.white * 0.5
 
 func hit(col:Color):
 	target_color = col * 0.5
@@ -14,8 +14,13 @@ func _process(delta):
 	$WorldEnvironment.environment.fog_sun_color = (target_color * delta) + ($WorldEnvironment.environment.fog_sun_color * (1-delta))
 
 func _ready():
-	$WorldEnvironment.environment = $WorldEnvironment.environment.duplicate()
-	get_parent().get_node("Game").connect("hit",self,"hit")
+        colors = NoteColorPresets.get_colors()
+        if colors.empty():
+                colors = [Color.white]
+        target_color = colors[0] * 0.5
+        $WorldEnvironment.environment.fog_sun_color = target_color
+        $WorldEnvironment.environment = $WorldEnvironment.environment.duplicate()
+        get_parent().get_node("Game").connect("hit",self,"hit")
 	# Shaders
 	var env = get_node("WorldEnvironment").environment
 	if Rhythia.glow > 0:

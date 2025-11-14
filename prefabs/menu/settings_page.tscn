@@ -1,4 +1,4 @@
-[gd_scene load_steps=92 format=2]
+[gd_scene load_steps=93 format=2]
 
 [ext_resource path="res://uitheme.tres" type="Theme" id=1]
 [ext_resource path="res://assets/font/Lato/Lato-Regular.ttf" type="DynamicFontData" id=2]
@@ -66,6 +66,7 @@
 [ext_resource path="res://scripts/ui/settings/RenderScale.gd" type="Script" id=66]
 [ext_resource path="res://scripts/ui/settings/ReplayLimit.gd" type="Script" id=67]
 [ext_resource path="res://scripts/ui/settings/ReplayMode.gd" type="Script" id=68]
+[ext_resource path="res://scripts/ui/settings/NoteColorPresetManager.gd" type="Script" id=69]
 
 [sub_resource type="StyleBoxLine" id=55]
 color = Color( 0.690196, 0.690196, 0.690196, 0.588235 )
@@ -1268,7 +1269,7 @@ margin_bottom = 744.0
 
 [node name="ColorSet2" type="VBoxContainer" parent="TabContainer/Notes/Notes/Group/H"]
 margin_right = 1214.0
-margin_bottom = 72.0
+margin_bottom = 236.0
 rect_min_size = Vector2( 200, 72 )
 size_flags_horizontal = 3
 size_flags_vertical = 9
@@ -1391,10 +1392,154 @@ margin_top = 64.0
 margin_right = 1214.0
 margin_bottom = 68.0
 
-[node name="Mesh" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H"]
-margin_top = 76.0
+[node name="NoteColorPresets" type="VBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2"]
+margin_top = 72.0
 margin_right = 1214.0
-margin_bottom = 108.0
+margin_bottom = 232.0
+custom_constants/separation = 6
+script = ExtResource( 69 )
+
+[node name="Title" type="Label" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_right = 1214.0
+margin_bottom = 20.0
+theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0.898039, 0.94902, 1, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "Custom Note Presets"
+valign = 1
+
+[node name="HSeparator" type="HSeparator" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 24.0
+margin_right = 1214.0
+margin_bottom = 28.0
+
+[node name="PresetSelectorRow" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 32.0
+margin_right = 1214.0
+margin_bottom = 60.0
+custom_constants/separation = 12
+
+[node name="PresetLabel" type="Label" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetSelectorRow"]
+margin_right = 180.0
+margin_bottom = 28.0
+theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0.898039, 0.94902, 1, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "Active Preset"
+valign = 1
+
+[node name="PresetSelector" type="OptionButton" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetSelectorRow"]
+margin_left = 192.0
+margin_right = 1214.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+
+[node name="PresetActions" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 64.0
+margin_right = 1214.0
+margin_bottom = 92.0
+custom_constants/separation = 12
+
+[node name="CreateButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetActions"]
+margin_right = 120.0
+margin_bottom = 28.0
+text = "New"
+
+[node name="CloneButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetActions"]
+margin_left = 132.0
+margin_right = 252.0
+margin_bottom = 28.0
+text = "Clone"
+
+[node name="RenameButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetActions"]
+margin_left = 264.0
+margin_right = 384.0
+margin_bottom = 28.0
+text = "Rename"
+
+[node name="DeleteButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/PresetActions"]
+margin_left = 396.0
+margin_right = 516.0
+margin_bottom = 28.0
+text = "Delete"
+
+[node name="DefaultInfo" type="Label" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 96.0
+margin_right = 1214.0
+margin_bottom = 120.0
+theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0.670588, 0.556863, 0.556863, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "Default mirrors the game's colors. Clone it to customize."
+autowrap = true
+
+[node name="ColorScroll" type="MarginContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 124.0
+margin_right = 1214.0
+margin_bottom = 192.0
+custom_constants/margin_left = 4
+custom_constants/margin_top = 4
+custom_constants/margin_right = 4
+custom_constants/margin_bottom = 4
+
+[node name="Scroll" type="ScrollContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll"]
+margin_left = 4.0
+margin_top = 4.0
+margin_right = 1210.0
+margin_bottom = 64.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/h_scroll = 12
+custom_constants/v_scroll = 12
+
+[node name="ColorList" type="VBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll/Scroll"]
+margin_right = 1206.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 6
+
+[node name="ColorTemplate" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll/Scroll/ColorList"]
+visible = false
+margin_right = 1206.0
+margin_bottom = 28.0
+custom_constants/separation = 12
+
+[node name="Label" type="Label" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll/Scroll/ColorList/ColorTemplate"]
+margin_right = 160.0
+margin_bottom = 28.0
+theme = ExtResource( 1 )
+custom_colors/font_color = Color( 0.898039, 0.94902, 1, 1 )
+custom_fonts/font = SubResource( 3 )
+text = "Color"
+valign = 1
+
+[node name="Picker" type="ColorPickerButton" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll/Scroll/ColorList/ColorTemplate"]
+margin_left = 172.0
+margin_right = 404.0
+margin_bottom = 28.0
+size_flags_horizontal = 3
+
+[node name="RemoveButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorScroll/Scroll/ColorList/ColorTemplate"]
+margin_left = 416.0
+margin_right = 496.0
+margin_bottom = 28.0
+text = "Remove"
+
+[node name="ColorControls" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets"]
+margin_top = 196.0
+margin_right = 1214.0
+margin_bottom = 224.0
+
+[node name="AddColorButton" type="Button" parent="TabContainer/Notes/Notes/Group/H/ColorSet2/NoteColorPresets/ColorControls"]
+margin_right = 120.0
+margin_bottom = 28.0
+text = "Add Color"
+
+[node name="Mesh" type="HBoxContainer" parent="TabContainer/Notes/Notes/Group/H"]
+margin_top = 240.0
+margin_right = 1214.0
+margin_bottom = 272.0
 hint_tooltip = "model used by notes"
 
 [node name="Mesh" type="MenuButton" parent="TabContainer/Notes/Notes/Group/H/Mesh"]

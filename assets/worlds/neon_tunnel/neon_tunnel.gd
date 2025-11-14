@@ -1,7 +1,7 @@
 extends Spatial
 
 export(SpatialMaterial) var mat
-var colors:Array = Rhythia.selected_colorset.colors
+var colors:Array = []
 
 
 #var target_color:Color = colors[0] * 0.5
@@ -12,9 +12,12 @@ func hit(col:Color):
 #	$WorldEnvironment.environment.fog_sun_color = col * 0.5
 
 func _ready():
-	# Shaders
-	var env = get_node("WorldEnvironment").environment
-	if Rhythia.glow > 0:
+        colors = NoteColorPresets.get_colors()
+        if colors.empty():
+                colors = [Color.white]
+        # Shaders
+        var env = get_node("WorldEnvironment").environment
+        if Rhythia.glow > 0:
 		env.glow_enabled = true
 		env.glow_intensity = Rhythia.glow
 		env.glow_strength = 1
@@ -23,7 +26,7 @@ func _ready():
 		env.glow_hdr_scale = 1.72
 		env.glow_high_quality = true
 		env.glow_bicubic_upscale = true
-	mat.albedo_color = colors[0]
+        mat.albedo_color = colors[0]
 	get_parent().get_node("Game").connect("hit",self,"hit")
 	#$WorldEnvironment.environment = $WorldEnvironment.environment.duplicate()
 

@@ -266,11 +266,13 @@ func _ready():
 	prev_pos = global_transform.origin
 	prev_rot = $Mesh.rotation_degrees.x
 
-	if Rhythia.cursor_color_type == Globals.CURSOR_NOTE_COLOR:
-		recolor(Rhythia.selected_colorset.colors[-1])
-		get_parent().connect("hit",self,"recolor")
-	elif Rhythia.cursor_color_type == Globals.CURSOR_CUSTOM_COLOR:
-		recolor(Rhythia.cursor_color)
+        if Rhythia.cursor_color_type == Globals.CURSOR_NOTE_COLOR:
+                recolor(NoteColorPresets.get_color(-1))
+                get_parent().connect("hit",self,"recolor")
+                NoteColorPresets.connect("active_preset_changed", self, "_update_note_preset_color")
+                NoteColorPresets.connect("preset_colors_changed", self, "_update_note_preset_color")
+        elif Rhythia.cursor_color_type == Globals.CURSOR_CUSTOM_COLOR:
+                recolor(Rhythia.cursor_color)
 
 	if Rhythia.cursor_trail:
 		if Rhythia.smart_trail:
@@ -291,5 +293,9 @@ func _ready():
 				trail.start()
 	trail_started = true
 func _exit_tree():
-	for n in trail_cache:
-		n.queue_free()
+        for n in trail_cache:
+                n.queue_free()
+
+func _update_note_preset_color(_name=""):
+        if Rhythia.cursor_color_type == Globals.CURSOR_NOTE_COLOR:
+                recolor(NoteColorPresets.get_color(-1))
