@@ -1,6 +1,6 @@
 extends Spatial
 
-var colors:Array = Rhythia.selected_colorset.colors
+var colors:Array = NoteColorPresets.get_colors()
 
 func hit(noteColor:Color):
 	pass

@@ -51,10 +51,15 @@ To disable the fade-in effect completely, set your Fade Length to 0%.
 Keep in mind that the Nearsighted modifier overrides your spawn distance and fade length, and that both Nearsighted and Ghost take your approach rate into account when calculating the fade distances to ensure that they are always visible for the same amount of time.  
 
 ### Converting from Vulnus spawn values
-To convert from Vulnus approach settings, set your spawn distance to half of your Vulnus approach distance.  
-Then, divide your new spawn distance by your approach time, and set that as your approach rate.  
+To convert from Vulnus approach settings, set your spawn distance to half of your Vulnus approach distance.
+Then, divide your new spawn distance by your approach time, and set that as your approach rate.
 
-**As equations:**  
-`SD = AD * 0.5`  
-`AR = (AD * 0.5) / AT`  
+**As equations:**
+`SD = AD * 0.5`
+`AR = (AD * 0.5) / AT`
 (Note: SD and AR refer to the previously mentioned SSP settings, and AD and AT refer to Vulnus's Approach Distance and Time, respectively)
+
+### Note Color Presets
+The **Custom Note Presets** panel (Settings → Notes → Note Colors) lets you save and swap between multiple note color sets without touching the built-in color resources. Every installation starts with a **Default** preset that automatically mirrors whatever palette the base game would use. Default cannot be deleted or renamed, and it refreshes itself whenever you pick a different built-in color set so the game remains backward compatible.
+
+Use the preset list to select which colors will be applied to new notes. The buttons underneath allow you to create fresh presets (copied from Default), clone the current preset, rename it, or delete it (anything except Default). Custom presets expose each lane color through individual color pickers; add or remove swatches to control how the pattern cycles. Changes save immediately to `user://mods/note_color_presets/presets.json`, and the game will quietly restore the default palette if that file is missing or corrupt.

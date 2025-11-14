@@ -7,7 +7,7 @@ signal miss
 var rawMapData:String
 var notes:Array
 var last_ms:float = 0
-onready var colors:Array = Rhythia.selected_colorset.colors
+onready var colors:Array = NoteColorPresets.get_colors()
 onready var speed_multi = Globals.speed_multi[Rhythia.mod_speed_level]
 
 var score:int = 0

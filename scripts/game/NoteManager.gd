@@ -22,7 +22,7 @@ var active:bool = false
 var noteNodes:Array = []
 var noteCache:Array = []
 var noteQueue:Array = []
-var colors:Array = Rhythia.selected_colorset.colors
+var colors:Array = []
 var hitEffect:Spatial = load(Rhythia.selected_hit_effect.path).instance()
 var missEffect:Spatial = load(Rhythia.selected_miss_effect.path).instance()
 var scoreEffect:Spatial = load("res://assets/notefx/score/score.tscn").instance()
@@ -61,13 +61,13 @@ var note_transform_scale:Vector3
 
 var grid_pushback:float = 0.1 # default 0.1
 var pushback_defaults:Dictionary = {
-	"do_pushback": 4,
-	"never": 0.1
+        "do_pushback": 4,
+        "never": 0.1
 }
 
 func linstep(a:float,b:float,x:float):
-	if a == b: return float(x >= a)
-	return clamp(((x - a) / (b - a)),0,1)
+        if a == b: return float(x >= a)
+        return clamp(((x - a) / (b - a)),0,1)
 
 func note_reposition(i:int):
 	var real_position:Vector2 = notes[i][0]
@@ -346,7 +346,10 @@ func spawn_notes(note_array:Array):
 	note_transform_scale = Vector3(nscale, nscale, nscale)
 	
 	next_ms = note_array[0][2]
-	var colorset:Array = Rhythia.selected_colorset.colors
+        var colorset:Array = NoteColorPresets.get_colors()
+        if colorset.empty():
+                colorset = [Color.white]
+        colors = colorset.duplicate()
 	for i in range(note_array.size()):
 		var data:Array = note_array[i]
 		if (data[2] >= Rhythia.start_offset):
@@ -387,10 +390,16 @@ func spawn_notes(note_array:Array):
 
 
 func _ready():
-	if Rhythia.do_note_pushback:
-		grid_pushback = pushback_defaults.do_pushback
-	else:
-		grid_pushback = pushback_defaults.never
+        colors = NoteColorPresets.get_colors()
+        if !NoteColorPresets.is_connected("active_preset_changed", self, "_on_note_preset_changed"):
+                NoteColorPresets.connect("active_preset_changed", self, "_on_note_preset_changed")
+        if !NoteColorPresets.is_connected("preset_colors_changed", self, "_on_note_preset_changed"):
+                NoteColorPresets.connect("preset_colors_changed", self, "_on_note_preset_changed")
+
+        if Rhythia.do_note_pushback:
+                grid_pushback = pushback_defaults.do_pushback
+        else:
+                grid_pushback = pushback_defaults.never
 
 	if Rhythia.speed_hitwindow:
 		hit_window = Rhythia.get("hitwindow_ms") * speed_multi
@@ -838,13 +847,24 @@ func _process(delta:float):
 				should_write_pos = true
 				Rhythia.replay.store_cursor_pos(rms,$Cursor.rpos.x,$Cursor.rpos.y)
 		
-		if Rhythia.rainbow_grid:
-			$Inner.get("material/0").albedo_color = Color.from_hsv(Rhythia.rainbow_t*0.1,0.65,1)
-			$Outer.get("material/0").albedo_color = Color.from_hsv(Rhythia.rainbow_t*0.1,0.65,1)
+                if Rhythia.rainbow_grid:
+                        $Inner.get("material/0").albedo_color = Color.from_hsv(Rhythia.rainbow_t*0.1,0.65,1)
+                        $Outer.get("material/0").albedo_color = Color.from_hsv(Rhythia.rainbow_t*0.1,0.65,1)
 
+
+func _on_note_preset_changed(_name):
+        colors = NoteColorPresets.get_colors()
+        if colors.empty():
+                colors = [Color.white]
+        if notes.empty():
+                return
+        for i in range(notes.size()):
+                notes[i][3] = NoteColorPresets.get_color(i)
+        if notes_loaded:
+                reposition_notes(true, current_note)
 
 func _exit_tree():
-	# Remove anything sitting outside of the tree
-	scoreEffect.queue_free()
-	for n in noteCache:
-		n.queue_free()
+        # Remove anything sitting outside of the tree
+        scoreEffect.queue_free()
+        for n in noteCache:
+                n.queue_free()

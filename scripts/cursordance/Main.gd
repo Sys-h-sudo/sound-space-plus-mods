@@ -3,7 +3,7 @@ extends Panel
 var notes:PoolVector3Array = PoolVector3Array()
 var noten:int = 0
 
-var colors = Rhythia.selected_colorset.colors
+var colors:Array = []
 
 var active:bool = true
 
@@ -11,7 +11,20 @@ func mc(col:Color,m:float) -> Color:
 	return Color(col.r*m,col.g*m,col.b*m,col.a) 
 
 func ma(col:Color,m:float) -> Color:
-	return Color(col.r,col.g,col.b,col.a*m)
+        return Color(col.r,col.g,col.b,col.a*m)
+
+func _ready():
+        _refresh_colors()
+        NoteColorPresets.connect("active_preset_changed", self, "_on_note_preset_changed")
+        NoteColorPresets.connect("preset_colors_changed", self, "_on_note_preset_changed")
+
+func _refresh_colors():
+        colors = NoteColorPresets.get_colors()
+        if colors.empty():
+                colors = [Color.white]
+
+func _on_note_preset_changed(_name):
+        _refresh_colors()
 
 var flash_time:float = 0
 
