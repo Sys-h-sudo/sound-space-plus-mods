@@ -75,11 +75,29 @@ func end(end_type:int):
 	Rhythia.song_end_hits = hits
 	Rhythia.song_end_misses = misses
 	Rhythia.song_end_total_notes = total_notes
-	Rhythia.song_end_position = min($Spawn.ms,last_ms)
-	Rhythia.song_end_length = last_ms
-	Rhythia.song_end_type = end_type
-	Rhythia.song_end_combo = max_combo
-	print("song max combo: ", max_combo)
+        Rhythia.song_end_position = min($Spawn.ms,last_ms)
+        Rhythia.song_end_length = last_ms
+        Rhythia.song_end_type = end_type
+        Rhythia.song_end_combo = max_combo
+        print("song max combo: ", max_combo)
+
+        if end_type == Globals.END_PASS and !Rhythia.replaying and has_node("/root/Leaderboard"):
+                var leaderboard = get_node("/root/Leaderboard")
+                var accuracy:float = 0.0
+                if total_notes > 0:
+                        accuracy = hits / total_notes
+                var payload := {
+                        "score": score,
+                        "accuracy": accuracy,
+                        "mods": leaderboard.describe_active_modifiers(),
+                        "mod_key": leaderboard.get_current_mod_key(),
+                        "max_combo": max_combo,
+                        "misses": int(misses),
+                        "pauses": Rhythia.song_end_pause_count,
+                        "duration": last_ms,
+                        "passed": true
+                }
+                leaderboard.record_local_result(Rhythia.selected_song, payload)
 	
 	if Rhythia.record_replays and !Rhythia.replaying:
 		Rhythia.replay.end_recording()
