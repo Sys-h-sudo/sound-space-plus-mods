@@ -6,6 +6,7 @@ var open_amt:float = 1
 onready var pages:Array = [
 #	get_node("../Main/Results"),
 	get_node("../Main/Maps"),
+	get_node("../Main/Leaderboard"),
 	get_node("../Main/Settings"),
 	get_node("../Main/Credits"),
 	get_node("../Main/Content"),
@@ -14,6 +15,7 @@ onready var pages:Array = [
 onready var buttons:Array = [
 	$L/Results,
 #	$L/MapSelect,
+	$L/Leaderboard,
 	$L/Settings,
 	$L/Credits,
 	$L/ContentMgr,
@@ -22,6 +24,7 @@ onready var buttons:Array = [
 var use_ver_b:Array = [
 	false,
 #	false,
+	false,
 	true,
 	false,
 	false,
@@ -31,6 +34,7 @@ var hide_ver:Array = [
 	false,
 #	false,
 	false,
+	false,
 	true,
 	false,
 	false
@@ -38,6 +42,7 @@ var hide_ver:Array = [
 onready var smm_visibility:Dictionary = {
 	$L/Results: true,
 #	$L/MapSelect: true,
+	$L/Leaderboard: true,
 	$L/Settings: true,
 	$L/Credits: true,
 	$L/ContentMgr: true,
