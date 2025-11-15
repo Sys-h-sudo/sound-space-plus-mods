@@ -125,7 +125,10 @@ func refresh_remote(song:Song, force:bool=false) -> void:
                 if _remote_meta.has(song_id):
                         var meta := _ensure_remote_meta(song_id)
                         meta.loading = false
-                        meta.status = _remote_configured ? "idle" : "disabled"
+                        var status := "disabled"
+                        if _remote_configured:
+                                status = "idle"
+                        meta.status = status
                         meta.error_type = ""
                         meta.status_code = 0
                         meta.result_code = 0
@@ -270,9 +273,12 @@ func _get_entries(map_id:String) -> Array:
         return _data[map_id]
 
 func _default_remote_meta() -> Dictionary:
+        var status := "disabled"
+        if _remote_configured:
+                status = "idle"
         return {
                 "loading": false,
-                "status": _remote_configured ? "idle" : "disabled",
+                "status": status,
                 "error_type": "",
                 "status_code": 0,
                 "result_code": 0,
