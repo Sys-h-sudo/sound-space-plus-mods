@@ -465,8 +465,26 @@ func _sanitize_remote_entry(entry) -> Dictionary:
                 result["passed"] = bool(data.get("passed"))
         if data.has("highlight"):
                 result["highlight"] = bool(data.get("highlight"))
+        var progression := {}
+        if data.has("progression") and data.progression is Dictionary:
+                progression = _sanitize_progression(data.progression)
+        else:
+                progression = _sanitize_progression(data)
+        if progression.size() > 0:
+                result["progression"] = progression
         result["source"] = "remote"
         return result
+
+func _sanitize_progression(data:Dictionary) -> Dictionary:
+        var progression:Dictionary = {}
+        if data.has("rp"):
+                progression["rp"] = float(data.get("rp", 0.0))
+        if data.has("total_rp"):
+                progression["total_rp"] = float(data.get("total_rp", 0.0))
+        for key in ["rank_tier", "tier", "tier_name", "rank_name"]:
+                if data.has(key):
+                        progression[key] = String(data.get(key))
+        return progression
 
 func _remote_sort(a:Dictionary, b:Dictionary) -> bool:
         return int(a.get("rank", 0)) < int(b.get("rank", 0))
