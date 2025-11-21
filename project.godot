@@ -317,6 +317,7 @@ Dance="*res://scripts/cursordance/Dance.gd"
 SFXManager="*res://scripts/game/SFXManager.gd"
 NoteColorPresets="*res://scripts/NoteColorPresets.gd"
 Leaderboard="*res://scripts/LeaderboardManager.gd"
+Progression="*res://scripts/ProgressionManager.gd"
 
 [debug]
 
