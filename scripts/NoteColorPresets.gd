@@ -37,6 +37,7 @@ func _load_presets():
     presets.clear()
     active_preset_name = DEFAULT_PRESET_NAME
     _active_colors = []
+    var should_save := false
 
     var file := File.new()
     if file.file_exists(Globals.p(PRESET_FILE)):
@@ -46,16 +47,21 @@ func _load_presets():
             file.close()
             var parse := JSON.parse(content)
             if parse.error == OK and typeof(parse.result) == TYPE_DICTIONARY:
-                _deserialize(parse.result)
+                should_save = _deserialize(parse.result)
             else:
                 _create_default_presets()
+                should_save = true
         else:
             _create_default_presets()
+            should_save = true
     else:
         _create_default_presets()
+        should_save = true
 
     _loading = false
     _apply_active()
+    if should_save:
+        _save()
 
 func _create_default_presets():
     var default_colors := _get_colors_from_rhythia()
@@ -64,19 +70,24 @@ func _create_default_presets():
     }
     active_preset_name = DEFAULT_PRESET_NAME
 
-func _deserialize(data: Dictionary):
+func _deserialize(data: Dictionary) -> bool:
+    var changed := false
     var raw_presets = data.get("presets", {})
     if typeof(raw_presets) != TYPE_DICTIONARY:
         raw_presets = {}
+        changed = true
 
     for name in raw_presets.keys():
         if typeof(name) != TYPE_STRING:
+            changed = true
             continue
         var entry = raw_presets[name]
         if typeof(entry) != TYPE_DICTIONARY:
+            changed = true
             continue
         var colors_data = entry.get("colors", [])
         if typeof(colors_data) != TYPE_ARRAY:
+            changed = true
             continue
         var colors := []
         for c in colors_data:
@@ -85,16 +96,21 @@ func _deserialize(data: Dictionary):
                 colors.append(color)
         if colors.empty():
             colors = _get_colors_from_rhythia()
+            changed = true
         presets[name] = {"colors": colors}
 
     if !presets.has(DEFAULT_PRESET_NAME):
         presets[DEFAULT_PRESET_NAME] = {"colors": _get_colors_from_rhythia()}
+        changed = true
 
     var stored_active = data.get("active", DEFAULT_PRESET_NAME)
     if typeof(stored_active) == TYPE_STRING and presets.has(stored_active):
         active_preset_name = stored_active
     else:
         active_preset_name = DEFAULT_PRESET_NAME
+        changed = true
+
+    return changed
 
 func _parse_color(value):
     match typeof(value):
