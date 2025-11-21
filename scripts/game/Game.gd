@@ -81,16 +81,24 @@ func end(end_type:int):
         Rhythia.song_end_combo = max_combo
         print("song max combo: ", max_combo)
 
-        if end_type == Globals.END_PASS and !Rhythia.replaying and has_node("/root/Leaderboard"):
-                var leaderboard = get_node("/root/Leaderboard")
-                var accuracy:float = 0.0
-                if total_notes > 0:
-                        accuracy = hits / total_notes
+        var accuracy:float = 0.0
+        if total_notes > 0:
+                accuracy = hits / total_notes
+
+        var leaderboard = null
+        var active_modifiers:Array = []
+        var active_mod_key:String = ""
+        if has_node("/root/Leaderboard"):
+                leaderboard = get_node("/root/Leaderboard")
+                active_modifiers = leaderboard.describe_active_modifiers()
+                active_mod_key = leaderboard.get_current_mod_key()
+
+        if end_type == Globals.END_PASS and !Rhythia.replaying and leaderboard:
                 var payload := {
                         "score": score,
                         "accuracy": accuracy,
-                        "mods": leaderboard.describe_active_modifiers(),
-                        "mod_key": leaderboard.get_current_mod_key(),
+                        "mods": active_modifiers,
+                        "mod_key": active_mod_key,
                         "max_combo": max_combo,
                         "misses": int(misses),
                         "pauses": Rhythia.song_end_pause_count,
@@ -98,6 +106,19 @@ func end(end_type:int):
                         "passed": true
                 }
                 leaderboard.record_local_result(Rhythia.selected_song, payload)
+
+        if end_type == Globals.END_PASS and !Rhythia.replaying and has_node("/root/Progression"):
+                var progression = get_node("/root/Progression")
+                progression.record_song_result(Rhythia.selected_song, {
+                        "score": score,
+                        "accuracy": accuracy,
+                        "mods": active_modifiers,
+                        "mod_key": active_mod_key,
+                        "max_combo": max_combo,
+                        "misses": int(misses),
+                        "duration": last_ms,
+                        "total_notes": int(total_notes)
+                })
 	
 	if Rhythia.record_replays and !Rhythia.replaying:
 		Rhythia.replay.end_recording()
