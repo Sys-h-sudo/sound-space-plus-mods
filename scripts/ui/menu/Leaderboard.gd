@@ -1,6 +1,17 @@
 extends ReferenceRect
 
 const MAX_TOP_ENTRIES:int = 10
+const TIER_COLORS := {
+        "bronze": Color(0.58, 0.45, 0.32),
+        "silver": Color(0.72, 0.78, 0.85),
+        "gold": Color(0.9, 0.78, 0.42),
+        "platinum": Color(0.73, 0.88, 0.9),
+        "diamond": Color(0.63, 0.78, 0.96),
+        "master": Color(0.86, 0.6, 0.99),
+        "grandmaster": Color(0.96, 0.69, 0.69),
+        "celestial": Color(0.76, 0.86, 0.97),
+        "interstellar": Color(0.78, 0.74, 0.95)
+}
 
 onready var _subtitle_label:Label = $Layout/Subtitle
 onready var _notice_label:Label = $Layout/Notice
@@ -121,7 +132,7 @@ func _create_entry(entry:Dictionary, mode:String) -> Control:
         var background := ColorRect.new()
         var highlight:bool = bool(entry.get("highlight", false))
         background.color = highlight ? Color(0.278431, 0.490196, 0.580392, 0.4) : Color(0, 0, 0, 0.25)
-        background.rect_min_size.y = 56
+        background.rect_min_size.y = 64
         background.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         background.mouse_filter = Control.MOUSE_FILTER_IGNORE
         wrapper.add_child(background)
@@ -143,6 +154,10 @@ func _create_entry(entry:Dictionary, mode:String) -> Control:
         rank_label.rect_min_size = Vector2(70, 0)
         hbox.add_child(rank_label)
 
+        var badge := _create_rank_badge(entry)
+        if badge:
+                hbox.add_child(badge)
+
         var info_box := VBoxContainer.new()
         info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         info_box.custom_constants.separation = 2
@@ -159,8 +174,12 @@ func _create_entry(entry:Dictionary, mode:String) -> Control:
         secondary_label.add_color_override("font_color", Color(0.75, 0.78, 0.8))
         info_box.add_child(secondary_label)
 
+        var progression_box := _create_progression_box(entry)
+        if progression_box:
+                hbox.add_child(progression_box)
+
         var time_label := Label.new()
-        time_label.rect_min_size = Vector2(220, 0)
+        time_label.rect_min_size = Vector2(180, 0)
         time_label.align = Label.ALIGN_RIGHT
         time_label.valign = Label.VALIGN_CENTER
         time_label.clip_text = true
@@ -293,6 +312,13 @@ func _format_remote_summary(player_entry:Dictionary) -> String:
         var rank:int = int(player_entry.get("rank", 0))
         if rank > 0:
                 parts.append(tr("Your rank: #%d") % rank)
+        var progression := _get_progression_data(player_entry)
+        var badge_text := _format_tier_badge_text(progression)
+        if badge_text != "":
+                parts.append(badge_text)
+        var rp_text := _format_rp_text(progression, true)
+        if rp_text != "":
+                parts.append(rp_text)
         var score_value:int = int(player_entry.get("score", 0))
         if score_value > 0:
                 parts.append(tr("Score %s") % Globals.comma_sep(score_value))
@@ -313,3 +339,149 @@ func _format_accuracy_text(value) -> String:
 func _clear_container(node:Node):
         for child in node.get_children():
                 child.queue_free()
+
+func _get_progression_data(entry:Dictionary) -> Dictionary:
+        if entry.has("progression") and entry.progression is Dictionary:
+                return entry.progression
+        var progression := {}
+        for key in ["rp", "total_rp", "rank_tier", "rank_name", "tier", "tier_name"]:
+                if entry.has(key):
+                        progression[key] = entry[key]
+        if progression.empty():
+                return {}
+        return progression
+
+func _create_progression_box(entry:Dictionary) -> Control:
+        var progression := _get_progression_data(entry)
+        var badge_text := _format_tier_badge_text(progression)
+        var rp_text := _format_rp_text(progression)
+        if badge_text == "" and rp_text == "":
+                return null
+        var box := VBoxContainer.new()
+        box.custom_constants.separation = 2
+        box.rect_min_size = Vector2(140, 0)
+        box.size_flags_horizontal = Control.SIZE_FILL
+        var badge_label := Label.new()
+        badge_label.align = Label.ALIGN_CENTER
+        badge_label.text = badge_text
+        badge_label.visible = badge_text != ""
+        badge_label.add_color_override("font_color", Color(0.88, 0.93, 1.0))
+        box.add_child(badge_label)
+        var rp_label := Label.new()
+        rp_label.align = Label.ALIGN_CENTER
+        rp_label.text = rp_text
+        rp_label.visible = rp_text != ""
+        rp_label.add_color_override("font_color", Color(0.76, 0.84, 0.9))
+        box.add_child(rp_label)
+        return box
+
+func _create_rank_badge(entry:Dictionary) -> Control:
+        var progression := _get_progression_data(entry)
+        var badge_text := _format_tier_badge_text(progression)
+        if badge_text == "":
+                return null
+        var badge := ColorRect.new()
+        badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        badge.rect_min_size = Vector2(120, 28)
+        var tier_key := _extract_tier_key(progression)
+        if TIER_COLORS.has(tier_key):
+                badge.color = TIER_COLORS[tier_key].linear_interpolate(Color(0, 0, 0), 0.35)
+        else:
+                badge.color = Color(0.25, 0.32, 0.37, 0.9)
+        var label := Label.new()
+        label.anchor_right = 1.0
+        label.anchor_bottom = 1.0
+        label.margin_left = 8
+        label.margin_right = -8
+        label.valign = Label.VALIGN_CENTER
+        label.align = Label.ALIGN_CENTER
+        label.text = badge_text
+        label.add_color_override("font_color", Color(0.05, 0.09, 0.12))
+        badge.add_child(label)
+        return badge
+
+func _format_tier_badge_text(progression:Dictionary) -> String:
+        var tier_key := _extract_tier_key(progression)
+        if tier_key == "":
+                return ""
+        var formatted := _format_tier_name(tier_key)
+        if formatted == "":
+                return ""
+        return formatted
+
+func _format_rp_text(progression:Dictionary, include_label:bool=false) -> String:
+        if progression.empty():
+                return ""
+        var rp_value:float = -1.0
+        if progression.has("total_rp"):
+                rp_value = float(progression.get("total_rp", -1.0))
+        elif progression.has("rp"):
+                rp_value = float(progression.get("rp", -1.0))
+        if rp_value < 0.0:
+                return ""
+        var text := Globals.comma_sep(int(round(rp_value)))
+        return include_label ? tr("RP %s") % text : "%s RP" % text
+
+func _format_tier_name(raw_value:String) -> String:
+        var normalized := raw_value.strip_edges()
+        if normalized == "":
+                return ""
+        var key := normalized.to_lower().replace("-", "_").replace(" ", "_")
+        var parts := key.split("_")
+        var base := parts.size() > 0 ? parts[0] : key
+        var base_label := base.substr(0, 1).to_upper() + base.substr(1)
+        var known_labels := {
+                "bronze": "Bronze",
+                "silver": "Silver",
+                "gold": "Gold",
+                "platinum": "Platinum",
+                "diamond": "Diamond",
+                "master": "Master",
+                "grandmaster": "Grandmaster",
+                "celestial": "Celestial",
+                "interstellar": "Interstellar"
+        }
+        if known_labels.has(base):
+                base_label = known_labels[base]
+        var suffix := ""
+        if parts.size() > 1:
+                var tail := parts[parts.size() - 1]
+                var num := _parse_subrank(tail)
+                if num > 0:
+                        suffix = " %s" % _to_roman(num)
+        return base_label + suffix
+
+func _parse_subrank(value:String) -> int:
+        if value.is_valid_integer():
+                return int(value)
+        var roman_map := {"i": 1, "ii": 2, "iii": 3, "iv": 4, "v": 5}
+        var key := value.to_lower()
+        if roman_map.has(key):
+                return roman_map[key]
+        return 0
+
+func _to_roman(num:int) -> String:
+        match num:
+                1:
+                        return "I"
+                2:
+                        return "II"
+                3:
+                        return "III"
+                4:
+                        return "IV"
+                5:
+                        return "V"
+                _:
+                        return String(num)
+
+func _extract_tier_key(progression:Dictionary) -> String:
+        if progression.has("rank_tier"):
+                return String(progression.get("rank_tier", ""))
+        if progression.has("tier"):
+                return String(progression.get("tier", ""))
+        if progression.has("rank_name"):
+                return String(progression.get("rank_name", ""))
+        if progression.has("tier_name"):
+                return String(progression.get("tier_name", ""))
+        return ""
